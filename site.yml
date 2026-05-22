@@ -1,0 +1,28 @@
+---
+- name: Common baseline for all hosts
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - common
+
+- name: Configure Proxmox nodes
+  hosts: proxmox
+  become: true
+  gather_facts: true
+  roles:
+    - proxmox
+
+- name: Configure generic Linux servers
+  hosts: linux_servers
+  become: true
+  gather_facts: true
+  roles:
+    - linux_server
+
+- name: Ensure NetBird on all clients
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - netbird

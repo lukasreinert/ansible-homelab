@@ -1,0 +1,17 @@
+---
+- name: Register netbird if not already connected
+  ansible.builtin.command:
+    argv:
+      - netbird
+      - up
+      - --management-url
+      - "{{ netbird_management_url }}"
+      - --setup-key
+      - "{{ netbird_setup_key }}"
+  register: netbird_up
+  changed_when: >
+    netbird_up.rc == 0 and
+    ('Already connected' not in (netbird_up.stdout | default('') + netbird_up.stderr | default('')))
+  failed_when: >
+    netbird_up.rc != 0 and
+    ('Already connected' not in (netbird_up.stdout | default('') + netbird_up.stderr | default('')))

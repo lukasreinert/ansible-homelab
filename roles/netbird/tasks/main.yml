@@ -1,0 +1,6 @@
+---
+- name: Install NetBird
+  ansible.builtin.import_tasks: install.yml
+
+- name: Register NetBird
+  ansible.builtin.import_tasks: register.yml

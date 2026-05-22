@@ -1,0 +1,20 @@
+---
+- name: Download NetBird installer script
+  ansible.builtin.get_url:
+    url: https://pkgs.netbird.io/install.sh
+    dest: /tmp/netbird-install.sh
+    mode: "0755"
+
+- name: Run NetBird installer script
+  ansible.builtin.shell: |
+    set -o pipefail
+    /tmp/netbird-install.sh
+  args:
+    executable: /bin/bash
+    creates: /usr/bin/netbird
+
+- name: Ensure netbird service is enabled and started
+  ansible.builtin.service:
+    name: netbird
+    state: started
+    enabled: true

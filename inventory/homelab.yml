@@ -8,4 +8,7 @@ proxmox:
 
 linux_server:
   hosts:
-
+    netbird:
+      ansible_host: netbird.netbird
+    revproxy:
+      ansible_host: revproxy.netbird
