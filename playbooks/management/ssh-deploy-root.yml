@@ -1,0 +1,21 @@
+---
+- name: Deploy root SSH key on all hosts
+  hosts: all
+
+  vars:
+    pubkey_path: "~/.ssh/id_ed25519_homelab.pub"
+
+  tasks:
+    - name: Ensure .ssh exists for root
+      ansible.builtin.file:
+        path: /root/.ssh
+        state: directory
+        mode: "0700"
+        owner: root
+        group: root
+
+    - name: Install root public key
+      ansible.posix.authorized_key:
+        user: root
+        key: "{{ lookup('file', pubkey_path) }}"
+        state: present

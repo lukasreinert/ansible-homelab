@@ -1,0 +1,18 @@
+---
+- name: Update Debian/Ubuntu and reboot if needed
+  hosts: all
+
+  tasks:
+    - name: Check if reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Reboot if required
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible after kernel/critical updates"
+        pre_reboot_delay: 0
+        reboot_timeout: 600
+        post_reboot_delay: 30
+      when:
+        - reboot_required.stat.exists

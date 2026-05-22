@@ -1,0 +1,11 @@
+---
+proxmox:
+  hosts:
+    saa1-ibiscloud:
+      ansible_host: saa1-ibiscloud.netbird
+    saa2-ibiscloud:
+      ansible_host: saa2-ibiscloud.netbird
+
+linux_server:
+  hosts:
+

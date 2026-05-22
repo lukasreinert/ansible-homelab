@@ -1,0 +1,13 @@
+---
+- name: Update Debian/Ubuntu and reboot if needed
+  hosts: all
+
+  tasks:
+    - name: Run apt update and dist-upgrade
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+
+    - name: Autoremove unused packages
+      ansible.builtin.apt:
+        autoremove: true
