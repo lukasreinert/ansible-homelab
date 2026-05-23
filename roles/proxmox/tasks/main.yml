@@ -1,1 +1,3 @@
 ---
+- name: Disable subscription popup
+  ansible.builtin.import_tasks: disable-subscription-popup.yml

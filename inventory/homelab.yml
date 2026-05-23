@@ -2,9 +2,9 @@
 proxmox:
   hosts:
     saa1-ibiscloud:
-      ansible_host: saa1-ibiscloud.netbird
+      ansible_host: 172.16.1.1
     saa2-ibiscloud:
-      ansible_host: saa2-ibiscloud.netbird
+      ansible_host: 172.16.2.1
 
 linux_server:
   hosts:
@@ -12,3 +12,15 @@ linux_server:
       ansible_host: netbird.netbird
     revproxy:
       ansible_host: revproxy.netbird
+    webserver:
+      ansible_host: webserver.netbird
+    nextcloud:
+      ansible_host: nextcloud.netbird
+    dockerhost:
+      ansible_host: dockerhost.netbird
+    authentik:
+      ansible_host: authentik.netbird
+    vaultwarden:
+      ansible_host: vaultwarden.netbird
+    paperless-ngx:
+      ansible_host: paperless-ngx.netbird

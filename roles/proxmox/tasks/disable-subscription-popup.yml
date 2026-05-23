@@ -1,0 +1,16 @@
+---
+- name: Ensure backup of original proxmox_js_file exists
+  ansible.builtin.copy:
+    src: "{{ proxmox_proxmoxlib_js }}"
+    dest: "{{ proxmox_proxmoxlib_js }}.bak"
+    remote_src: true
+    force: false
+    mode: "0644"
+
+- name: Disable proxmox subscription popup
+  ansible.builtin.replace:
+    path: "{{ proxmox_proxmoxlib_js }}"
+    regexp: 'Ext\.Msg\.show\({[\s\S]*?}\);'
+    replace: 'orig_cmd();'
+  register: proxmox_proxmoxlib_patch
+  notify: Restart pveproxy
