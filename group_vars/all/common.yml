@@ -1,5 +1,13 @@
 ---
 common_packages:
+  - sudo
   - curl
   - vim
+  - git
   - htop
+
+common_packages_linux:
+  - software-properties-common
+  - zip
+  - unzip
+  - p7zip-full

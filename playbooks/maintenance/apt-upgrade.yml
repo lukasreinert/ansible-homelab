@@ -1,5 +1,5 @@
 ---
-- name: Update Debian/Ubuntu and reboot if needed
+- name: Update Debian/Ubuntu
   hosts: all
 
   tasks:

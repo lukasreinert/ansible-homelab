@@ -14,11 +14,18 @@
     - proxmox
 
 - name: Configure generic Linux servers
-  hosts: linux_servers
+  hosts: linux_server
   become: true
   gather_facts: true
   roles:
     - linux_server
+
+- name: Configure generic Linux servers
+  hosts: linux_server:!lxc_container
+  become: true
+  gather_facts: true
+  roles:
+    - linux_server_no_lxc
 
 - name: Ensure NetBird on all clients
   hosts: all

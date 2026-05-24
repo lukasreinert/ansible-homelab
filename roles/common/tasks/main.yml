@@ -1,10 +1,3 @@
 ---
-- name: Ensure common packages are installed (Debian)
-  ansible.builtin.apt:
-    name: "{{ common_packages | default([]) }}"
-    state: present
-    update_cache: true
-  when:
-    - common_packages is defined
-    - common_packages | length > 0
-    - ansible_facts['os_family'] == 'Debian'
+- name: Ensure common packages are installed
+  ansible.builtin.import_tasks: packages.yml

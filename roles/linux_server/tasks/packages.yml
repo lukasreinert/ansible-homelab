@@ -1,0 +1,9 @@
+---
+- name: Ensure common packages are installed
+  ansible.builtin.apt:
+    name: "{{ common_packages_linux | default([]) }}"
+    state: present
+    update_cache: true
+  when:
+    - common_packages_linux is defined
+    - common_packages_linux | length > 0

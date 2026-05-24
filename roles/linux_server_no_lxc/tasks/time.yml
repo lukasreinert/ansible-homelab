@@ -1,0 +1,28 @@
+- name: Set timezone
+  ansible.builtin.command:
+    argv:
+      - timedatectl
+      - set-timezone
+      - "{{ time_timezone }}"
+  changed_when: true
+
+- name: Install NTPsec packages
+  ansible.builtin.apt:
+    name: "{{ time_ntp_packages }}"
+    state: present
+    update_cache: true
+
+- name: Enable and start NTPsec service
+  ansible.builtin.service:
+    name: ntpsec
+    state: started
+    enabled: true
+
+- name: Perform one-time NTP sync
+  ansible.builtin.command:
+    argv:
+      - ntpdate
+      - "-u"
+      - "{{ time_ntp_server }}"
+  register: ntpdate_result
+  changed_when: true

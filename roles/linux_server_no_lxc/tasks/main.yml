@@ -1,0 +1,3 @@
+---
+- name: Configure time and NTPsec
+  ansible.builtin.import_tasks: time.yml
