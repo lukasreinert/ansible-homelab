@@ -1,10 +1,7 @@
+---
 - name: Set timezone
-  ansible.builtin.command:
-    argv:
-      - timedatectl
-      - set-timezone
-      - "{{ time_timezone }}"
-  changed_when: true
+  community.general.timezone:
+    name: "{{ time_timezone }}"
 
 - name: Install NTPsec packages
   ansible.builtin.apt:
@@ -24,5 +21,6 @@
       - ntpdate
       - "-u"
       - "{{ time_ntp_server }}"
-  register: ntpdate_result
-  changed_when: true
+  register: linux_server_no_lxc_ntpdate_result
+  changed_when: "'time stepped' in linux_server_no_lxc_ntpdate_result.stdout"
+  failed_when: linux_server_no_lxc_ntpdate_result.rc != 0

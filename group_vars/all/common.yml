@@ -11,3 +11,9 @@ common_packages_linux:
   - zip
   - unzip
   - p7zip-full
+
+time_timezone: "Europe/Berlin"
+time_ntp_packages:
+  - ntpsec
+  - ntpsec-ntpdate
+time_ntp_server: "pool.ntp.org"

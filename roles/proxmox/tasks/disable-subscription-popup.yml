@@ -10,7 +10,6 @@
 - name: Disable proxmox subscription popup
   ansible.builtin.replace:
     path: "{{ proxmox_proxmoxlib_js }}"
-    regexp: 'Ext\.Msg\.show\({[\s\S]*?}\);'
-    replace: 'orig_cmd();'
-  register: proxmox_proxmoxlib_patch
+    regexp: "Ext\\.Msg\\.show\\({[\\s\\S]*?}\\);"
+    replace: "orig_cmd();"
   notify: Restart pveproxy
