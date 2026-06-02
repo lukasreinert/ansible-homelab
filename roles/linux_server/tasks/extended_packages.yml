@@ -1,0 +1,6 @@
+---
+- name: Ensure extended common packages are installed
+  ansible.builtin.apt:
+    name: "{{ common_packages_extended }}"
+    state: present
+    update_cache: true

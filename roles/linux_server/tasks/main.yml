@@ -1,3 +1,11 @@
 ---
 - name: Ensure common packages are installed
   ansible.builtin.import_tasks: packages.yml
+
+- name: Ensure extended common packages are installed (only on non-Proxmox hosts)
+  ansible.builtin.import_tasks: extended_packages.yml
+  when: "'proxmox' not in group_names"
+
+- name: Configure time and NTPsec (only on non-LXC hosts)
+  ansible.builtin.import_tasks: time.yml
+  when: "'lxc_container' not in group_names"
