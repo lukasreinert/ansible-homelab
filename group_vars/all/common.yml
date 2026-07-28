@@ -5,6 +5,7 @@ common_packages:
   - vim
   - git
   - htop
+  - zsh
 
 common_packages_extended:
   - software-properties-common
@@ -12,7 +13,7 @@ common_packages_extended:
   - unzip
   - p7zip-full
 
-time_timezone: "Europe/Berlin"
+time_timezone: "Etc/UTC"
 
 time_ntp_packages:
   - ntpsec

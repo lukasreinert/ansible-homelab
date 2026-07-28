@@ -9,3 +9,6 @@
 - name: Configure time and NTPsec (only on non-LXC hosts)
   ansible.builtin.import_tasks: time.yml
   when: "'lxc_container' not in group_names"
+
+- name: Setup users
+  ansible.builtin.import_tasks: setup_users.yml

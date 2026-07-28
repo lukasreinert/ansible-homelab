@@ -1,0 +1,68 @@
+---
+- name: Ensure user lukas exists with home and password
+  ansible.builtin.user:
+    name: lukas
+    state: present
+    create_home: true
+    shell: /usr/bin/zsh
+    password: "{{ lukas_password_hash }}"
+  no_log: true
+
+- name: Ensure .ssh exists
+  ansible.builtin.file:
+    path: /home/lukas/.ssh
+    state: directory
+    mode: "0700"
+    owner: lukas
+    group: lukas
+
+- name: Install public key
+  vars:
+    pubkey_path: "~/.ssh/id_ed25519_homelab.pub"
+  ansible.posix.authorized_key:
+    user: lukas
+    key: "{{ lookup('file', pubkey_path) }}"
+    state: present
+
+- name: Download Oh My Zsh installer
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    dest: /tmp/ohmyzsh-install.sh
+    mode: "0755"
+
+- name: Install Oh My Zsh for lukas
+  become: true
+  become_user: lukas
+  ansible.builtin.command:
+    argv:
+      - /tmp/ohmyzsh-install.sh
+    creates: /home/lukas/.oh-my-zsh
+  environment:
+    HOME: /home/lukas
+    USER: lukas
+    RUNZSH: "no"
+    CHSH: "no"
+    KEEP_ZSHRC: "yes"
+
+- name: Create .zshrc for lukas
+  ansible.builtin.copy:
+    dest: /home/lukas/.zshrc
+    owner: lukas
+    group: lukas
+    mode: "0644"
+    force: true
+    content: |-
+      export PATH="$HOME/.local/bin:$PATH"
+      export ZSH="$HOME/.oh-my-zsh"
+
+      PROMPT='%F{cyan}%n%f@%m %~ %# '
+
+      plugins=(git)
+
+      source $ZSH/oh-my-zsh.sh
+
+      # Example aliases
+      # alias zshconfig="mate ~/.zshrc"
+      # alias ohmyzsh="mate ~/.oh-my-zsh"
+      alias nv='nvim'
+      alias ll='ls -alhF --color=auto'

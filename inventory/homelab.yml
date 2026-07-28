@@ -21,6 +21,8 @@ linux_server:
       ansible_host: vaultwarden.netbird
     paperless-ngx:
       ansible_host: paperless-ngx.netbird
+    ist1:
+      ansible_host: 216.9.224.17
 
 # Helper groups
 
