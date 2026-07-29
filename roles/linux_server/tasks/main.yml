@@ -12,3 +12,7 @@
 
 - name: Setup users
   ansible.builtin.import_tasks: setup_users.yml
+  when: "'proxmox' not in group_names"
+
+- name: Install OpenSSH configuration files with hardening
+  ansible.builtin.import_tasks: ssh_configs.yml

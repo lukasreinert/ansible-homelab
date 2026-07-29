@@ -1,0 +1,14 @@
+---
+- name: Validate SSH configuration
+  become: true
+  ansible.builtin.command:
+    cmd: /usr/sbin/sshd -t
+  changed_when: false
+  listen: Validate and reload ssh
+
+- name: Reload SSH
+  become: true
+  ansible.builtin.systemd:
+    name: ssh
+    state: reloaded
+  listen: Validate and reload ssh

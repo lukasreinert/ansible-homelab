@@ -1,6 +1,6 @@
 ---
-- name: Setup ist1
-  hosts: ist1
+- name: Ensure NetBird on all clients
+  hosts: all
   become: true
   gather_facts: true
   roles:

@@ -1,0 +1,16 @@
+---
+- name: Install OpenSSH configuration files
+  become: true
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  loop:
+    - src: sshd_config
+      dest: /etc/ssh/sshd_config
+    - src: 99-hardening.conf
+      dest: /etc/ssh/sshd_config.d/99-hardening.conf
+  notify: Validate and reload ssh

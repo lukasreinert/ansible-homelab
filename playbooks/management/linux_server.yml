@@ -1,0 +1,7 @@
+---
+- name: Configure generic Linux servers
+  hosts: linux_server
+  become: true
+  gather_facts: true
+  roles:
+    - linux_server

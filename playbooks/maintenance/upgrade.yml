@@ -6,7 +6,7 @@
     - name: Run apt update and dist-upgrade
       ansible.builtin.apt:
         update_cache: true
-        upgrade: dist
+        upgrade: safe
 
     - name: Autoremove unused packages
       ansible.builtin.apt:
