@@ -22,7 +22,9 @@ linux_server:
     paperless-ngx:
       ansible_host: paperless-ngx.netbird
     ist1:
-      ansible_host: 216.9.224.17
+      ansible_host: ist1-ibiscloud.netbird
+    mx1:
+      ansible_host: mx1-ibiscloud.netbird
 
 # Helper groups
 

@@ -33,13 +33,10 @@
     state: present
     create_home: true
     shell: /usr/bin/zsh
-    password: "{{ linux_server_user.password_hash }}"
-    update_password: always
   loop: "{{ linux_server_users_resolved }}"
   loop_control:
     loop_var: linux_server_user
     label: "{{ linux_server_user.name }}"
-  no_log: true
 
 - name: Ensure SSH directories exist
   ansible.builtin.file:
@@ -64,6 +61,17 @@
   loop_control:
     loop_var: linux_server_user
     label: "{{ linux_server_user.name }}"
+
+- name: Set passwords after SSH keys are installed
+  ansible.builtin.user:
+    name: "{{ linux_server_user.name }}"
+    password: "{{ linux_server_user.password_hash }}"
+    update_password: always
+  loop: "{{ linux_server_users_resolved }}"
+  loop_control:
+    loop_var: linux_server_user
+    label: "{{ linux_server_user.name }}"
+  no_log: true
 
 - name: Add configured users to the sudo group
   ansible.builtin.user:

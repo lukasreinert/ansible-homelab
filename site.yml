@@ -4,7 +4,6 @@
   become: true
   gather_facts: true
   roles:
-    - common
     - netbird
 
 - name: Configure Proxmox nodes

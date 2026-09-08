@@ -1,7 +1,8 @@
 ---
 - name: Setup ist1
-  hosts: ist1
+  hosts: mx1
   become: true
   gather_facts: true
   roles:
     - netbird
+    - linux_server
