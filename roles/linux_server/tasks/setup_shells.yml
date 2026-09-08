@@ -1,0 +1,88 @@
+---
+- name: Check whether any user requires Zsh
+  ansible.builtin.set_fact:
+    linux_server_zsh_required: >-
+      {{
+        linux_server_users_resolved
+        | selectattr('shell', 'equalto', 'zsh')
+        | list
+        | length > 0
+      }}
+
+- name: Ensure Zsh and Git are installed
+  ansible.builtin.package:
+    name:
+      - zsh
+      - git
+    state: present
+  when: linux_server_zsh_required
+
+- name: Download Oh My Zsh installer
+  ansible.builtin.get_url:
+    url: "{{ linux_server_ohmyzsh_installer_url }}"
+    dest: "{{ linux_server_ohmyzsh_installer_path }}"
+    mode: "0755"
+  when: linux_server_zsh_required
+
+- name: Ensure Ansible temporary directories exist for Zsh users
+  ansible.builtin.file:
+    path: "/tmp/.ansible-{{ linux_server_user.name }}"
+    state: directory
+    owner: "{{ linux_server_user.name }}"
+    group: "{{ linux_server_user.name }}"
+    mode: "0700"
+  loop: "{{ linux_server_users_resolved }}"
+  loop_control:
+    loop_var: linux_server_user
+    label: "{{ linux_server_user.name }}"
+  when:
+    - linux_server_user.shell == 'zsh'
+
+- name: Install Oh My Zsh for configured users
+  become: true
+  become_user: "{{ linux_server_user.name }}"
+  become_method: ansible.builtin.su
+  ansible.builtin.command:
+    argv:
+      - "{{ linux_server_ohmyzsh_installer_path }}"
+    creates: "{{ linux_server_user.home }}/.oh-my-zsh"
+  vars:
+    ansible_remote_tmp: "/tmp/.ansible-{{ linux_server_user.name }}"
+  environment:
+    HOME: "{{ linux_server_user.home }}"
+    USER: "{{ linux_server_user.name }}"
+    RUNZSH: "no"
+    CHSH: "no"
+    KEEP_ZSHRC: "yes"
+  loop: "{{ linux_server_users_resolved }}"
+  loop_control:
+    loop_var: linux_server_user
+    label: "{{ linux_server_user.name }}"
+  when:
+    - linux_server_user.shell == 'zsh'
+
+- name: Create .zshrc for configured users
+  ansible.builtin.copy:
+    dest: "{{ linux_server_user.home }}/.zshrc"
+    owner: "{{ linux_server_user.name }}"
+    group: "{{ linux_server_user.name }}"
+    mode: "0644"
+    force: true
+    content: |
+      export PATH="$HOME/.local/bin:$PATH"
+      export ZSH="$HOME/.oh-my-zsh"
+
+      PROMPT='%F{cyan}%n%f@%m %~ %# '
+
+      plugins=(git)
+
+      source "$ZSH/oh-my-zsh.sh"
+
+      alias nv='nvim'
+      alias ll='ls -alhF --color=auto'
+  loop: "{{ linux_server_users_resolved }}"
+  loop_control:
+    loop_var: linux_server_user
+    label: "{{ linux_server_user.name }}"
+  when:
+    - linux_server_user.shell == 'zsh'

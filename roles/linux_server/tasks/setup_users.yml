@@ -1,16 +1,39 @@
 ---
-- name: Derive home directories for configured users
+- name: Validate configured users
+  ansible.builtin.assert:
+    that:
+      - item.name is defined
+      - item.shell is defined
+      - item.shell in ['bash', 'zsh']
+      - item.password_hash is defined
+      - item.ssh_public_key is defined
+    fail_msg: >-
+      Invalid user configuration for '{{ item.name | default('undefined') }}'.
+      Each user requires name, shell, password_hash and ssh_public_key.
+      The shell must be either 'bash' or 'zsh'.
+  loop: "{{ linux_server_users }}"
+  loop_control:
+    label: "{{ item.name | default('undefined') }}"
+  no_log: true
+
+- name: Initialize resolved user list
+  ansible.builtin.set_fact:
+    linux_server_users_resolved: []
+
+- name: Resolve user home directories and shell paths
   ansible.builtin.set_fact:
     linux_server_users_resolved: >-
       {{
-        linux_server_users_resolved | default([])
+        linux_server_users_resolved
         + [
             item | combine(
               {
                 'home':
                   '/root'
                   if item.name == 'root'
-                  else '/home/' ~ item.name
+                  else '/home/' ~ item.name,
+                'shell_path':
+                  linux_server_shell_paths[item.shell]
               }
             )
           ]
@@ -18,13 +41,7 @@
   loop: "{{ linux_server_users }}"
   loop_control:
     label: "{{ item.name }}"
-
-- name: Ensure Zsh and Git are installed
-  ansible.builtin.package:
-    name:
-      - zsh
-      - git
-    state: present
+  no_log: true
 
 - name: Ensure configured users exist
   ansible.builtin.user:
@@ -32,11 +49,14 @@
     home: "{{ linux_server_user.home }}"
     state: present
     create_home: true
-    shell: /usr/bin/zsh
+    shell: "{{ linux_server_user.shell_path }}"
+    password: "{{ linux_server_user.password_hash }}"
+    update_password: always
   loop: "{{ linux_server_users_resolved }}"
   loop_control:
     loop_var: linux_server_user
     label: "{{ linux_server_user.name }}"
+  no_log: true
 
 - name: Ensure SSH directories exist
   ansible.builtin.file:
@@ -62,22 +82,23 @@
     loop_var: linux_server_user
     label: "{{ linux_server_user.name }}"
 
-- name: Set passwords after SSH keys are installed
-  ansible.builtin.user:
-    name: "{{ linux_server_user.name }}"
-    password: "{{ linux_server_user.password_hash }}"
-    update_password: always
+- name: Ensure authorized_keys permissions
+  ansible.builtin.file:
+    path: "{{ linux_server_user.home }}/.ssh/authorized_keys"
+    state: file
+    owner: "{{ linux_server_user.name }}"
+    group: "{{ linux_server_user.name }}"
+    mode: "0600"
   loop: "{{ linux_server_users_resolved }}"
   loop_control:
     loop_var: linux_server_user
     label: "{{ linux_server_user.name }}"
-  no_log: true
 
-- name: Add configured users to the sudo group
+- name: Add configured users to the sudo group on Debian-family systems
   ansible.builtin.user:
     name: "{{ linux_server_user.name }}"
     groups:
-      - "{{ 'wheel' if ansible_facts['os_family'] == 'RedHat' else 'sudo' }}"
+      - sudo
     append: true
   loop: "{{ linux_server_users_resolved }}"
   loop_control:
@@ -86,66 +107,19 @@
   when:
     - linux_server_user.sudo | default(false) | bool
     - linux_server_user.name != 'root'
-    - ansible_facts['os_family'] in ['Debian', 'RedHat']
+    - ansible_facts['os_family'] == 'Debian'
 
-- name: Download Oh My Zsh installer
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-    dest: /tmp/ohmyzsh-install.sh
-    mode: "0755"
-
-- name: Ensure Ansible temporary directories exist
-  ansible.builtin.file:
-    path: "/tmp/.ansible-{{ linux_server_user.name }}"
-    state: directory
-    owner: "{{ linux_server_user.name }}"
-    group: "{{ linux_server_user.name }}"
-    mode: "0700"
+- name: Add configured users to the wheel group on RedHat-family systems
+  ansible.builtin.user:
+    name: "{{ linux_server_user.name }}"
+    groups:
+      - wheel
+    append: true
   loop: "{{ linux_server_users_resolved }}"
   loop_control:
     loop_var: linux_server_user
     label: "{{ linux_server_user.name }}"
-
-- name: Install Oh My Zsh for configured users
-  become: true
-  become_user: "{{ linux_server_user.name }}"
-  ansible.builtin.command:
-    argv:
-      - /tmp/ohmyzsh-install.sh
-    creates: "{{ linux_server_user.home }}/.oh-my-zsh"
-  vars:
-    ansible_remote_tmp: "/tmp/.ansible-{{ linux_server_user.name }}"
-  environment:
-    HOME: "{{ linux_server_user.home }}"
-    USER: "{{ linux_server_user.name }}"
-    RUNZSH: "no"
-    CHSH: "no"
-    KEEP_ZSHRC: "yes"
-  loop: "{{ linux_server_users_resolved }}"
-  loop_control:
-    loop_var: linux_server_user
-    label: "{{ linux_server_user.name }}"
-
-- name: Create .zshrc for configured users
-  ansible.builtin.copy:
-    dest: "{{ linux_server_user.home }}/.zshrc"
-    owner: "{{ linux_server_user.name }}"
-    group: "{{ linux_server_user.name }}"
-    mode: "0644"
-    force: true
-    content: |
-      export PATH="$HOME/.local/bin:$PATH"
-      export ZSH="$HOME/.oh-my-zsh"
-
-      PROMPT='%F{cyan}%n%f@%m %~ %# '
-
-      plugins=(git)
-
-      source "$ZSH/oh-my-zsh.sh"
-
-      alias nv='nvim'
-      alias ll='ls -alhF --color=auto'
-  loop: "{{ linux_server_users_resolved }}"
-  loop_control:
-    loop_var: linux_server_user
-    label: "{{ linux_server_user.name }}"
+  when:
+    - linux_server_user.sudo | default(false) | bool
+    - linux_server_user.name != 'root'
+    - ansible_facts['os_family'] == 'RedHat'

@@ -1,0 +1,7 @@
+---
+linux_server_shell_paths:
+  bash: /bin/bash
+  zsh: /usr/bin/zsh
+
+linux_server_ohmyzsh_installer_url: "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+linux_server_ohmyzsh_installer_path: /tmp/ohmyzsh-install.sh

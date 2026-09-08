@@ -1,5 +1,5 @@
 ---
-- name: Setup ist1
+- name: Setup new host
   hosts: mx1
   become: true
   gather_facts: true

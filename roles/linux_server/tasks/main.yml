@@ -10,8 +10,12 @@
   ansible.builtin.import_tasks: time.yml
   when: "'lxc_container' not in group_names"
 
-- name: Setup users
+- name: Set up users
   ansible.builtin.import_tasks: setup_users.yml
+  when: "'proxmox' not in group_names"
+
+- name: Set up user shells
+  ansible.builtin.import_tasks: setup_shells.yml
   when: "'proxmox' not in group_names"
 
 - name: Install OpenSSH configuration files with hardening

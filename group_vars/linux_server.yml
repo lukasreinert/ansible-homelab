@@ -1,11 +1,13 @@
 ---
 linux_server_users:
   - name: root
+    shell: zsh
     password_hash: "{{ linux_server_user_passwords.root }}"
     ssh_public_key: "~/.ssh/id_ed25519_homelab.pub"
-    sudo: true
+    sudo: false
 
   - name: lukas
+    shell: zsh
     password_hash: "{{ linux_server_user_passwords.lukas }}"
     ssh_public_key: "~/.ssh/id_ed25519_homelab.pub"
     sudo: true
