@@ -123,3 +123,16 @@
     - linux_server_user.sudo | default(false) | bool
     - linux_server_user.name != 'root'
     - ansible_facts['os_family'] == 'RedHat'
+
+- name: Create .vimrc for configured users
+  ansible.builtin.copy:
+    src: .vimrc
+    dest: "{{ linux_server_user.home }}/.vimrc"
+    owner: "{{ linux_server_user.name }}"
+    group: "{{ linux_server_user.name }}"
+    mode: "0644"
+    force: true
+  loop: "{{ linux_server_users_resolved }}"
+  loop_control:
+    loop_var: linux_server_user
+    label: "{{ linux_server_user.name }}"
